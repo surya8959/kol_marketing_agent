@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VANZO KOL Agent - AI 全链路自动化营销系统</title>
+    <meta name="description" content="VANZO KOL Marketing Agent - AI 全链路自动化演示系统">
+
+    <!-- CSS 样式 -->
+    <link rel="stylesheet" href="../src/css/variables.css">
+    <link rel="stylesheet" href="../src/css/layout.css">
+    <link rel="stylesheet" href="../src/css/components.css">
+    <link rel="stylesheet" href="../src/css/animations.css">
+
+    <!-- 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 头部导航 -->
+    <header class="header">
+        <div class="header__logo">
+            <div class="header__logo-icon">🤖</div>
+            <div class="header__logo-text">VANZO KOL Agent</div>
+        </div>
+        <div class="header__actions">
+            <button class="btn btn--outline" onclick="window.app.resetCampaign()">
+                🔄 重置
+            </button>
+            <button class="btn btn--primary" id="start-campaign">
+                🚀 启动 Agent
+            </button>
+        </div>
+    </header>
+
+    <!-- 主容器 -->
+    <main class="main-container">
+        <!-- 第一栏：需求输入 -->
+        <div class="column">
+            <div class="column__header">
+                <div class="column__title">📋 需求输入</div>
+                <div class="column__status">
+                    <div class="column__status-dot"></div>
+                    <span>就绪</span>
+                </div>
+            </div>
+            <div class="column__content">
+                <form id="requirements-form" class="form">
+                    <div class="form-group">
+                        <label class="form-label" for="brand">品牌名称</label>
+                        <input
+                            type="text"
+                            id="brand"
+                            name="brand"
+                            class="form-input"
+                            placeholder="例如：Anker"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="product">产品描述</label>
+                        <textarea
+                            id="product"
+                            name="product"
+                            class="form-textarea"
+                            placeholder="简要描述产品特点..."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="targetMarket">目标市场</label>
+                        <select id="targetMarket" name="targetMarket" class="form-select" required>
+                            <option value="">选择市场...</option>
+                            <option value="us">美国 (US)</option>
+                            <option value="eu">欧洲 (EU)</option>
+                            <option value="sea">东南亚 (SEA)</option>
+                            <option value="jp">日本 (JP)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="platform">投放平台</label>
+                        <select id="platform" name="platform" class="form-select" required>
+                            <option value="">选择平台...</option>
+                            <option value="TikTok">TikTok</option>
+                            <option value="YouTube">YouTube</option>
+                            <option value="Instagram">Instagram</option>
+                            <option value="Multi">多平台</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="budget">预算范围 (USD)</label>
+                        <select id="budget" name="budget" class="form-select" required>
+                            <option value="">选择预算...</option>
+                            <option value="5000">$5,000 - $10,000</option>
+                            <option value="15000">$10,000 - $20,000</option>
+                            <option value="30000">$20,000 - $50,000</option>
+                            <option value="50000">$50,000+</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="goal">营销目标</label>
+                        <select id="goal" name="goal" class="form-select" required>
+                            <option value="">选择目标...</option>
+                            <option value="awareness">品牌曝光</option>
+                            <option value="conversion">转化销售</option>
+                            <option value="engagement">互动种草</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn--accent" style="width: 100%;">
+                        ✅ 提交需求
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 第二栏：Agent 执行流程 -->
+        <div class="column">
+            <div class="column__header">
+                <div class="column__title">⚡ Agent 执行</div>
+                <div class="column__status">
+                    <div class="column__status-dot column__status-dot--active"></div>
+                    <span>运行中</span>
+                </div>
+            </div>
+            <div class="column__content">
+                <div class="agent-pipeline">
+                    <!-- 需求分析 Agent -->
+                    <div class="agent-status" data-agent="analyzer">
+                        <div class="agent-status__header">
+                            <div class="agent-status__icon">🔍</div>
+                            <div class="agent-status__info">
+                                <div class="agent-status__name">需求分析 Agent</div>
+                                <div class="agent-status__text">等待中</div>
+                            </div>
+                            <div class="agent-status__dot"></div>
+                        </div>
+                        <div class="agent-status__progress-bar">
+                            <div class="agent-status__progress" style="width: 0%"></div>
+                        </div>
+                        <div class="agent-status__log"></div>
+                    </div>
+
+                    <!-- KOL 匹配 Agent -->
+                    <div class="agent-status" data-agent="matcher">
+                        <div class="agent-status__header">
+                            <div class="agent-status__icon">🎯</div>
+                            <div class="agent-status__info">
+                                <div class="agent-status__name">KOL 匹配 Agent</div>
+                                <div class="agent-status__text">等待中</div>
+                            </div>
+                            <div class="agent-status__dot"></div>
+                        </div>
+                        <div class="agent-status__progress-bar">
+                            <div class="agent-status__progress" style="width: 0%"></div>
+                        </div>
+                        <div class="agent-status__log"></div>
+                    </div>
+
+                    <!-- 内容创作 Agent -->
+                    <div class="agent-status" data-agent="creator">
+                        <div class="agent-status__header">
+                            <div class="agent-status__icon">✍️</div>
+                            <div class="agent-status__info">
+                                <div class="agent-status__name">内容创作 Agent</div>
+                                <div class="agent-status__text">等待中</div>
+                            </div>
+                            <div class="agent-status__dot"></div>
+                        </div>
+                        <div class="agent-status__progress-bar">
+                            <div class="agent-status__progress" style="width: 0%"></div>
+                        </div>
+                        <div class="agent-status__log"></div>
+                    </div>
+
+                    <!-- 效果优化 Agent -->
+                    <div class="agent-status" data-agent="optimizer">
+                        <div class="agent-status__header">
+                            <div class="agent-status__icon">📊</div>
+                            <div class="agent-status__info">
+                                <div class="agent-status__name">效果优化 Agent</div>
+                                <div class="agent-status__text">等待中</div>
+                            </div>
+                            <div class="agent-status__dot"></div>
+                        </div>
+                        <div class="agent-status__progress-bar">
+                            <div class="agent-status__progress" style="width: 0%"></div>
+                        </div>
+                        <div class="agent-status__log"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第三栏：KOL 匹配结果 -->
+        <div class="column">
+            <div class="column__header">
+                <div class="column__title">👥 KOL 匹配</div>
+                <div class="column__status">
+                    <div class="column__status-dot"></div>
+                    <span>待匹配</span>
+                </div>
+            </div>
+            <div class="column__content">
+                <div class="kol-list" id="kol-results">
+                    <div class="empty-state">
+                        <div class="empty-state__icon">🔍</div>
+                        <div class="empty-state__text">
+                            提交需求后，AI Agent 将为您匹配合适的 KOL
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第四栏：效果预测 -->
+        <div class="column">
+            <div class="column__header">
+                <div class="column__title">📈 效果预测</div>
+                <div class="column__status">
+                    <div class="column__status-dot"></div>
+                    <span>待预测</span>
+                </div>
+            </div>
+            <div class="column__content">
+                <div class="metrics-panel">
+                    <div class="empty-state">
+                        <div class="empty-state__icon">📊</div>
+                        <div class="empty-state__text">
+                            Agent 执行完成后将显示效果预测
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript -->
+    <script type="module" src="../src/js/app.js"></script>
+</body>
+</html>

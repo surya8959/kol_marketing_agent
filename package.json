@@ -1,0 +1,30 @@
+{
+  "name": "vanzo-kol-agent",
+  "version": "1.0.0-alpha",
+  "description": "VANZO KOL Marketing Agent - 全链路自动化演示系统",
+  "main": "public/index.html",
+  "scripts": {
+    "start": "npx serve public -p 8000",
+    "dev": "python3 -m http.server 8000 --directory public",
+    "build": "echo 'No build step needed'",
+    "test": "echo 'Tests not implemented yet'"
+  },
+  "keywords": [
+    "AI",
+    "Agent",
+    "KOL",
+    "Marketing",
+    "VANZO",
+    "Claude",
+    "Automation"
+  ],
+  "author": "Interview Candidate",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/surya8959/vanzo-kol-agent.git"
+  },
+  "devDependencies": {
+    "serve": "^14.2.0"
+  }
+}
