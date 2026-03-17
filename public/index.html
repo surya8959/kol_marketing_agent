@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VANZO KOL Agent - AI 全链路自动化营销系统</title>
-    <meta name="description" content="VANZO KOL Marketing Agent - AI 全链路自动化演示系统">
+    <title>全链路KOL 营销 Agent - AI 全链路自动化营销系统</title>
+    <meta name="description" content="全链路KOL 营销 Agent - AI 全链路自动化演示系统">
 
     <!-- CSS 样式 -->
     <link rel="stylesheet" href="../src/css/variables.css">
@@ -22,7 +22,15 @@
     <header class="header">
         <div class="header__logo">
             <div class="header__logo-icon">🤖</div>
-            <div class="header__logo-text">VANZO KOL Agent</div>
+            <div class="header__logo-text">全链路KOL 营销 Agent</div>
+        </div>
+        <div class="header__mode-switch">
+            <button class="mode-btn mode-btn--active" data-mode="kol" onclick="window.app.switchMode('kol')">
+                📣 KOL营销
+            </button>
+            <button class="mode-btn" data-mode="podcast" onclick="window.app.switchMode('podcast')">
+                🎙️ 播客推广
+            </button>
         </div>
         <div class="header__actions">
             <button class="btn btn--outline" onclick="window.app.resetCampaign()">
@@ -242,6 +250,323 @@
     </main>
 
     <!-- JavaScript -->
+    <script src="../src/js/config.js"></script>
     <script type="module" src="../src/js/app.js"></script>
+
+    <!-- 播客内容再利用视图 - NotebookLM 风格三栏布局 -->
+    <div id="podcast-view" class="podcast-view" style="display: none;">
+        <div class="notebooklm-container">
+            <!-- ===== 左侧：素材区 ===== -->
+            <div class="notebooklm-column notebooklm-column--left">
+                <div class="column-header">
+                    <div class="column-title">
+                        <span class="column-icon">📁</span>
+                        <span>素材库</span>
+                    </div>
+                    <button class="btn btn--sm btn--outline" onclick="app.newProject()">
+                        + 新建项目
+                    </button>
+                </div>
+
+                <!-- 项目列表 -->
+                <div class="project-list">
+                    <div class="project-item project-item--active">
+                        <div class="project-icon">🎙️</div>
+                        <div class="project-info">
+                            <div class="project-name">EP12: AI时代的个人成长</div>
+                            <div class="project-meta">科技观察播客 · 2小时前</div>
+                        </div>
+                    </div>
+                    <div class="project-item">
+                        <div class="project-icon">🎙️</div>
+                        <div class="project-info">
+                            <div class="project-name">EP11: 创业者的至暗时刻</div>
+                            <div class="project-meta">科技观察播客 · 昨天</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 已添加的素材列表 -->
+                <div class="sources-added" id="sources-added">
+                    <div class="sources-title">
+                        <span>📂 当前素材</span>
+                        <button class="btn btn--sm btn--outline" onclick="app.showAddSourceModal()">
+                            + 添加素材
+                        </button>
+                    </div>
+
+                    <!-- 素材列表容器 -->
+                    <div class="source-list" id="source-list">
+                        <!-- 模拟已有素材 -->
+                        <div class="source-item" data-type="audio" data-name="final.m4a" data-duration="01:24">
+                            <span class="source-type">🎵</span>
+                            <div class="source-details">
+                                <span class="source-name">final.m4a</span>
+                                <span class="source-meta">音频 · 01:24</span>
+                            </div>
+                            <button class="source-delete" onclick="app.deleteSource(this)">×</button>
+                        </div>
+                        <div class="source-item" data-type="text" data-name="EP12-逐字稿.txt" data-size="12KB">
+                            <span class="source-type">📝</span>
+                            <div class="source-details">
+                                <span class="source-name">EP12-逐字稿.txt</span>
+                                <span class="source-meta">文案 · 12KB</span>
+                            </div>
+                            <button class="source-delete" onclick="app.deleteSource(this)">×</button>
+                        </div>
+                        <div class="source-item" data-type="image" data-name="封面图.jpg" data-size="2.3MB">
+                            <span class="source-type">🖼️</span>
+                            <div class="source-details">
+                                <span class="source-name">封面图.jpg</span>
+                                <span class="source-meta">图片 · 2.3MB</span>
+                            </div>
+                            <button class="source-delete" onclick="app.deleteSource(this)">×</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 中间：对话区 ===== -->
+            <div class="notebooklm-column notebooklm-column--center">
+                <div class="column-header">
+                    <div class="column-title">
+                        <span class="column-icon">💬</span>
+                        <span>AI 对话</span>
+                    </div>
+                </div>
+
+                <!-- 对话历史 -->
+                <div class="chat-messages" id="chat-messages">
+                    <div class="chat-message chat-message--ai">
+                        <div class="chat-avatar">🤖</div>
+                        <div class="chat-content">
+                            <div class="chat-text">
+                                你好！我是你的内容营销助手。<br><br>
+                                我已经分析了你的播客素材，可以帮助你：<br>
+                                1. 生成长文/公众号文章<br>
+                                2. 拆解短视频脚本<br>
+                                3. 制作小红书、朋友圈文案<br>
+                                4. 创建 LinkedIn 专业内容<br><br>
+                                请告诉我你的需求，或者直接点击右侧的生成按钮开始。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 对话输入 -->
+                <div class="chat-input-area">
+                    <textarea
+                        id="chat-input"
+                        class="chat-input"
+                        placeholder="输入你的需求，如：'帮我生成一篇公众号文章，风格要犀利一些'..."
+                        rows="3"
+                    ></textarea>
+                    <div class="chat-actions">
+                        <button class="btn btn--sm btn--outline" onclick="app.clearChat()">🗑️ 清空</button>
+                        <button class="btn btn--sm btn--accent" onclick="app.sendChat()">📤 发送</button>
+                    </div>
+                </div>
+
+                <!-- 快捷指令 -->
+                <div class="quick-commands">
+                    <div class="quick-commands-title">💡 快捷指令</div>
+                    <div class="quick-command" onclick="app.quickCommand('长文')">
+                        📝 生成长文
+                    </div>
+                    <div class="quick-command" onclick="app.quickCommand('短视频')">
+                        🎬 短视频脚本
+                    </div>
+                    <div class="quick-command" onclick="app.quickCommand('小红书')">
+                        📕 小红书文案
+                    </div>
+                    <div class="quick-command" onclick="app.quickCommand('朋友圈')">
+                        📱 朋友圈文案
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 右侧：物料区 ===== -->
+            <div class="notebooklm-column notebooklm-column--right">
+                <div class="column-header">
+                    <div class="column-title">
+                        <span class="column-icon">📦</span>
+                        <span>生成物料</span>
+                    </div>
+                </div>
+
+                <!-- 分级内容展示 -->
+                <div class="content-tiers">
+                    <!-- Tier 1: 长文 -->
+                    <div class="tier-card" id="tier-longform">
+                        <div class="tier-card-header">
+                            <div class="tier-card-icon">📝</div>
+                            <div class="tier-card-info">
+                                <div class="tier-card-title">深度长文</div>
+                                <div class="tier-card-desc">公众号/博客 · 1500-2500字</div>
+                            </div>
+                            <button class="btn btn--sm btn--accent" onclick="app.generateLongForm()">
+                                生成
+                            </button>
+                        </div>
+                        <div class="tier-card-content" id="tier-longform-content">
+                            <div class="empty-hint">点击"生成"按钮创建长文</div>
+                        </div>
+                    </div>
+
+                    <!-- Tier 2: 短视频脚本 -->
+                    <div class="tier-card" id="tier-shortvideo">
+                        <div class="tier-card-header">
+                            <div class="tier-card-icon">🎬</div>
+                            <div class="tier-card-info">
+                                <div class="tier-card-title">短视频脚本</div>
+                                <div class="tier-card-desc">3-5条 · 30-60秒/条</div>
+                            </div>
+                            <button class="btn btn--sm btn--secondary" onclick="app.generateShortVideo()" disabled>
+                                生成
+                            </button>
+                        </div>
+                        <div class="tier-card-content" id="tier-shortvideo-content">
+                            <div class="empty-hint">先生成长文后再生成</div>
+                        </div>
+                    </div>
+
+                    <!-- Tier 3: 短文案 -->
+                    <div class="tier-card" id="tier-shortcopy">
+                        <div class="tier-card-header">
+                            <div class="tier-card-icon">📱</div>
+                            <div class="tier-card-info">
+                                <div class="tier-card-title">社交媒体文案</div>
+                                <div class="tier-card-desc">小红书 · 朋友圈 · X</div>
+                            </div>
+                            <button class="btn btn--sm btn--secondary" onclick="app.generateShortCopy()" disabled>
+                                生成
+                            </button>
+                        </div>
+                        <div class="tier-card-content" id="tier-shortcopy-content">
+                            <div class="empty-hint">先生成长文后再生成</div>
+                        </div>
+                    </div>
+
+                    <!-- Tier 4: LinkedIn -->
+                    <div class="tier-card" id="tier-linkedin">
+                        <div class="tier-card-header">
+                            <div class="tier-card-icon">💼</div>
+                            <div class="tier-card-info">
+                                <div class="tier-card-title">LinkedIn</div>
+                                <div class="tier-card-desc">专业文章 + 海报</div>
+                            </div>
+                            <button class="btn btn--sm btn--secondary" onclick="app.generateLinkedIn()" disabled>
+                                生成
+                            </button>
+                        </div>
+                        <div class="tier-card-content" id="tier-linkedin-content">
+                            <div class="empty-hint">先生成长文后再生成</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 导出按钮 -->
+                <div class="export-actions">
+                    <button class="btn btn--outline" onclick="app.exportAll()">📥 导出全部</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加素材弹窗 -->
+    <div id="add-source-modal" class="modal" style="display: none;">
+        <div class="modal-backdrop" onclick="app.closeAddSourceModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加素材</h3>
+                <button class="modal-close" onclick="app.closeAddSourceModal()">×</button>
+            </div>
+
+            <!-- 标签页导航 -->
+            <div class="modal-tabs">
+                <button class="modal-tab modal-tab--active" data-tab="local" onclick="app.switchSourceTab('local')">
+                    📁 本地上传
+                </button>
+                <button class="modal-tab" data-tab="link" onclick="app.switchSourceTab('link')">
+                    🔗 链接提取
+                </button>
+                <button class="modal-tab" data-tab="text" onclick="app.switchSourceTab('text')">
+                    📝 粘贴文案
+                </button>
+            </div>
+
+            <!-- 本地上传 -->
+            <div id="tab-local" class="modal-tab-content modal-tab-content--active">
+                <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+                    <input type="file" id="file-input" multiple accept="*" style="display: none;" onchange="app.handleFileSelect(event)">
+                    <div class="upload-zone-icon">📁</div>
+                    <div class="upload-zone-text">点击选择文件 或 拖拽文件到此处</div>
+                    <div class="upload-zone-hint">支持音频、视频、图片、文档</div>
+                </div>
+                <div class="upload-types">
+                    <div class="upload-type" onclick="app.selectUploadType('audio')">
+                        <span class="upload-type-icon">🎵</span>
+                        <span>音频</span>
+                    </div>
+                    <div class="upload-type" onclick="app.selectUploadType('video')">
+                        <span class="upload-type-icon">🎬</span>
+                        <span>视频</span>
+                    </div>
+                    <div class="upload-type" onclick="app.selectUploadType('image')">
+                        <span class="upload-type-icon">🖼️</span>
+                        <span>图片</span>
+                    </div>
+                    <div class="upload-type" onclick="app.selectUploadType('document')">
+                        <span class="upload-type-icon">📄</span>
+                        <span>文档</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 链接提取 -->
+            <div id="tab-link" class="modal-tab-content">
+                <div class="form-group">
+                    <label class="form-label">链接地址</label>
+                    <input type="url" id="source-link" class="form-input" placeholder="https://...">
+                </div>
+                <div class="link-types">
+                    <label class="link-type-label">内容类型：</label>
+                    <select id="link-type" class="form-select">
+                        <option value="auto">自动识别</option>
+                        <option value="youtube">YouTube 视频</option>
+                        <option value="article">文章/网页</option>
+                        <option value="podcast">播客 RSS</option>
+                    </select>
+                </div>
+                <button class="btn btn--accent" style="width: 100%; margin-top: 12px;" onclick="app.extractFromLink()">
+                    🔍 开始提取
+                </button>
+            </div>
+
+            <!-- 粘贴文案 -->
+            <div id="tab-text" class="modal-tab-content">
+                <div class="form-group">
+                    <label class="form-label">标题（可选）</label>
+                    <input type="text" id="text-title" class="form-input" placeholder="输入内容标题">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">内容</label>
+                    <textarea id="text-content" class="form-textarea" rows="8" placeholder="粘贴播客逐字稿、文章内容..."></textarea>
+                </div>
+                <button class="btn btn--accent" style="width: 100%;" onclick="app.addTextContent()">
+                    ✓ 添加文案
+                </button>
+            </div>
+
+            <!-- 已选择文件列表 -->
+            <div id="selected-files" class="selected-files" style="display: none;">
+                <div class="selected-files-title">已选择文件：</div>
+                <div id="selected-files-list"></div>
+                <button class="btn btn--accent" style="width: 100%; margin-top: 12px;" onclick="app.uploadSelectedFiles()">
+                    ✓ 确认上传
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

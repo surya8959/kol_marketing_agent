@@ -34,4 +34,5 @@ npm-debug.log*
 tmp/
 
 # API Keys
+src/js/config.js
 src/js/api/keys.js
