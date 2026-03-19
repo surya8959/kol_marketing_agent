@@ -394,73 +394,97 @@
                     </div>
                 </div>
 
-                <!-- 分级内容展示 -->
+                <!-- 分级内容展示 - Tab 切换 -->
                 <div class="content-tiers">
-                    <!-- Tier 1: 长文 -->
-                    <div class="tier-card" id="tier-longform">
-                        <div class="tier-card-header">
-                            <div class="tier-card-icon">📝</div>
-                            <div class="tier-card-info">
-                                <div class="tier-card-title">深度长文</div>
-                                <div class="tier-card-desc">公众号/博客 · 1500-2500字</div>
+                    <!-- Tab 导航 -->
+                    <div class="tier-tabs">
+                        <button class="tier-tab tier-tab--active" data-tier="longform" onclick="app.switchTier('longform')">
+                            📝 深度长文
+                        </button>
+                        <button class="tier-tab" data-tier="shortvideo" onclick="app.switchTier('shortvideo')">
+                            🎬 短视频流
+                        </button>
+                        <button class="tier-tab" data-tier="shortcopy" onclick="app.switchTier('shortcopy')">
+                            📕 图文种草
+                        </button>
+                        <button class="tier-tab" data-tier="linkedin" onclick="app.switchTier('linkedin')">
+                            💼 LinkedIn
+                        </button>
+                    </div>
+
+                    <!-- Tab 面板: 长文 -->
+                    <div class="tier-panel tier-panel--active" id="panel-longform">
+                        <div class="tier-card">
+                            <div class="tier-card-header">
+                                <div class="tier-card-icon">📝</div>
+                                <div class="tier-card-info">
+                                    <div class="tier-card-title">深度长文</div>
+                                    <div class="tier-card-desc">公众号/博客 · 1500-2500字</div>
+                                </div>
+                                <button class="btn btn--sm btn--accent" onclick="app.generateLongForm()">
+                                    生成
+                                </button>
                             </div>
-                            <button class="btn btn--sm btn--accent" onclick="app.generateLongForm()">
-                                生成
-                            </button>
-                        </div>
-                        <div class="tier-card-content" id="tier-longform-content">
-                            <div class="empty-hint">点击"生成"按钮创建长文</div>
+                            <div class="tier-card-content" id="tier-longform-content">
+                                <div class="empty-hint">点击"生成"按钮创建长文</div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Tier 2: 短视频脚本 -->
-                    <div class="tier-card" id="tier-shortvideo">
-                        <div class="tier-card-header">
-                            <div class="tier-card-icon">🎬</div>
-                            <div class="tier-card-info">
-                                <div class="tier-card-title">短视频脚本</div>
-                                <div class="tier-card-desc">3-5条 · 30-60秒/条</div>
+                    <!-- Tab 面板: 短视频流 -->
+                    <div class="tier-panel" id="panel-shortvideo">
+                        <div class="tier-card">
+                            <div class="tier-card-header">
+                                <div class="tier-card-icon">🎬</div>
+                                <div class="tier-card-info">
+                                    <div class="tier-card-title">短视频流</div>
+                                    <div class="tier-card-desc">抖音/视频号/小红书 · 金句卡片 · 动态字幕</div>
+                                </div>
+                                <button class="btn btn--sm btn--secondary" onclick="app.generateShortVideo()" disabled>
+                                    生成
+                                </button>
                             </div>
-                            <button class="btn btn--sm btn--secondary" onclick="app.generateShortVideo()" disabled>
-                                生成
-                            </button>
-                        </div>
-                        <div class="tier-card-content" id="tier-shortvideo-content">
-                            <div class="empty-hint">先生成长文后再生成</div>
+                            <div class="tier-card-content" id="tier-shortvideo-content">
+                                <div class="empty-hint">先生成长文后再生成短视频物料</div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Tier 3: 短文案 -->
-                    <div class="tier-card" id="tier-shortcopy">
-                        <div class="tier-card-header">
-                            <div class="tier-card-icon">📱</div>
-                            <div class="tier-card-info">
-                                <div class="tier-card-title">社交媒体文案</div>
-                                <div class="tier-card-desc">小红书 · 朋友圈 · X</div>
+                    <!-- Tab 面板: 图文种草 -->
+                    <div class="tier-panel" id="panel-shortcopy">
+                        <div class="tier-card">
+                            <div class="tier-card-header">
+                                <div class="tier-card-icon">📕</div>
+                                <div class="tier-card-info">
+                                    <div class="tier-card-title">图文种草</div>
+                                    <div class="tier-card-desc">小红书/即刻/朋友圈 · 金句卡片 · 干货清单</div>
+                                </div>
+                                <button class="btn btn--sm btn--secondary" onclick="app.generateShortCopy()" disabled>
+                                    生成
+                                </button>
                             </div>
-                            <button class="btn btn--sm btn--secondary" onclick="app.generateShortCopy()" disabled>
-                                生成
-                            </button>
-                        </div>
-                        <div class="tier-card-content" id="tier-shortcopy-content">
-                            <div class="empty-hint">先生成长文后再生成</div>
+                            <div class="tier-card-content" id="tier-shortcopy-content">
+                                <div class="empty-hint">先生成长文后再生成图文物料</div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Tier 4: LinkedIn -->
-                    <div class="tier-card" id="tier-linkedin">
-                        <div class="tier-card-header">
-                            <div class="tier-card-icon">💼</div>
-                            <div class="tier-card-info">
-                                <div class="tier-card-title">LinkedIn</div>
-                                <div class="tier-card-desc">专业文章 + 海报</div>
+                    <!-- Tab 面板: LinkedIn -->
+                    <div class="tier-panel" id="panel-linkedin">
+                        <div class="tier-card">
+                            <div class="tier-card-header">
+                                <div class="tier-card-icon">💼</div>
+                                <div class="tier-card-info">
+                                    <div class="tier-card-title">LinkedIn</div>
+                                    <div class="tier-card-desc">专业文章 + 海报</div>
+                                </div>
+                                <button class="btn btn--sm btn--secondary" onclick="app.generateLinkedIn()" disabled>
+                                    生成
+                                </button>
                             </div>
-                            <button class="btn btn--sm btn--secondary" onclick="app.generateLinkedIn()" disabled>
-                                生成
-                            </button>
-                        </div>
-                        <div class="tier-card-content" id="tier-linkedin-content">
-                            <div class="empty-hint">先生成长文后再生成</div>
+                            <div class="tier-card-content" id="tier-linkedin-content">
+                                <div class="empty-hint">先生成长文后再生成</div>
+                            </div>
                         </div>
                     </div>
                 </div>

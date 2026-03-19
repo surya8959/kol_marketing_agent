@@ -24,34 +24,36 @@ const CONTENT_TIERS = {
         priority: 1
     },
 
-    // Level 2: 短视频脚本
+    // Level 3: 短视频流（抖音/视频号/小红书视频）—— 流量入口
     shortVideo: {
-        name: '短视频脚本',
+        name: '短视频流',
         icon: '🎬',
-        description: '抖音/视频号口播文案',
-        platforms: ['抖音', '视频号', 'TikTok', 'YouTube Shorts'],
-        count: '3-5条',
-        duration: '30-60秒/条',
-        style: '口语化、带情绪、有反转',
-        structure: 'Hook(3秒) → 核心观点(45秒) → CTA(12秒)',
+        description: '抖音/视频号/小红书视频 · 金句卡片 · 动态字幕',
+        platforms: ['抖音', '视频号', '小红书视频', '快手'],
+        formats: [
+            { name: '金句卡片视频', icon: '💎', count: '3-5条', duration: '15-30秒' },
+            { name: '动态字幕视频', icon: '📝', count: '2-3条', duration: '30-45秒' }
+        ],
+        goal: '流量入口 · 引导收听全集',
+        style: '短、平、快 · 竖屏 · 大字报',
+        cta: '完整观点请点击主页链接收听全集',
         priority: 2
     },
 
-    // Level 3: 短文案（分类型）
+    // Level 4: 图文种草（小红书/即刻/朋友圈）—— 精准吸粉
     shortCopy: {
-        name: '短文案',
-        icon: '💬',
-        description: '朋友圈/微博/X 推文',
-        platforms: ['朋友圈', '微博', 'Twitter/X'],
-        count: '10-20条',
-        categories: [
-            { name: '金句型', icon: '💎', count: 3-5, style: '一句话让人记住' },
-            { name: '痛点型', icon: '😣', count: 2-3, style: '戳中用户痛点' },
-            { name: '反直觉型', icon: '🤔', count: 2-3, style: '颠覆认知' },
-            { name: '干货型', icon: '📚', count: 2-3, style: '有实用价值' },
-            { name: '故事型', icon: '📖', count: 2-3, style: '引发共鸣' }
+        name: '图文种草',
+        icon: '📕',
+        description: '小红书/即刻/朋友圈 · 金句卡片 · 干货清单',
+        platforms: ['小红书', '即刻', '朋友圈'],
+        formats: [
+            { name: '金句卡片', icon: '💎', count: '3-4张', desc: '黑底白字/杂志风' },
+            { name: '干货清单', icon: '📋', count: '5-8点', desc: '认知升级/避坑指南' },
+            { name: '深度感悟', icon: '✨', count: '200字', desc: '基于上下文补充' }
         ],
-        length: '50-200字',
+        goal: '精准吸粉 · 高质量沉淀',
+        style: '收藏率高 -> 平台推流 -> 用户关注',
+        cta: '点击头像/主页链接订阅播客',
         priority: 3
     },
 
@@ -161,29 +163,69 @@ ${longFormContent.substring(0, 2000)}
 请按编号输出每条脚本。
 `,
 
-    // Level 3: 短文案（分类型）
+    // Level 3: 图文种草（小红书/即刻/朋友圈）—— 精准吸粉
     shortCopy: (input, longFormContent) => `
-请根据以下内容，生成分类型的短文案（朋友圈/微博/X）：
+请根据以下播客/长文内容，生成"图文种草"物料，核心目标是"精准吸粉"：
 
 ## 长文内容
-${longFormContent.substring(0, 1500)}
+${longFormContent.substring(0, 2000)}
 
-## 要求
-1. 总数：15条（按以下类型分配）
-2. 每条长度：50-200字
+## 策略定位
+播客听众通常高质量、高粘性，小红书是最好的沉淀池。通过"图文种草"实现精准吸粉。
 
-### 类型分配：
-- 💎 金句型（4条）：一句话让人记住，有传播力
-- 😣 痛点型（3条）：戳中用户痛点，引发共鸣
-- 🤔 反直觉型（3条）：颠覆认知，引发讨论
-- 📚 干货型（3条）：有实用价值，便于收藏
-- 📖 故事型（2条）：引发共鸣，有画面感
+## 输出要求
 
-3. 风格：口语化、带情绪、直接
-4. 可适当使用 emoji
-5. 结尾可带互动引导
+### 1. 金句卡片（3-4张）
+每张包含：
+- **金句提取**：最精华的观点（15-25字）
+- **设计模板**：
+  - 黑底白字（简洁有力）
+  - 杂志风（ins风排版）
+  - 渐变色卡片（时尚感）
+  - 留白设计（高级感）
+- **视觉元素**：添加简单图形或装饰
+- **用途**：单独发布或作为配图
 
-请按类型分组输出。
+### 2. 干货清单（5-8点）
+标题示例：
+- "听了一期播客，治好了我的精神内耗，这5点太通透了！"
+- "关于[主题]，我后悔知道太晚的3个真相"
+- "普通人如何[目标]？这6个认知颠覆我的三观"
+
+内容结构：
+- 清晰的编号列表
+- 每点一句话核心观点
+- 配套的视觉建议（图标/插图）
+- 引导收听：想深入了解？点我头像听全集
+
+### 3. 深度感悟（200字）
+- **开头**：用场景或问题引入
+- **正文**：结合个人经历的真诚分享
+- **结尾**：引导关注和收听完整版
+
+### 4. 标题库（5-8个）
+- 收藏率导向
+- 制造知识缺口
+- 情绪共鸣
+- 反直觉观点
+
+### 5. 话题标签（10-15个）
+- 精准垂直标签
+- 泛兴趣标签
+- 播客相关标签
+- #播客推荐 #小宇宙 #自我提升
+
+### 6. 引流逻辑
+- 收藏率高 → 平台推流 → 用户关注账号 → 转化订阅播客
+- 每条内容都要有明确的"下一步"指引
+
+## 风格要求
+- 有温度、有态度
+- 避免过于官方
+- 适当使用 emoji
+- 分段清晰，便于阅读
+
+请按以上格式输出。
 `,
 
     // Level 4: LinkedIn + 海报
@@ -542,11 +584,11 @@ class PyramidContentAgent {
         };
     }
 
-    // 生成深度长文
-    async generateLongForm(input) {
+    // 生成深度长文（支持流式输出）
+    async generateLongForm(input, onChunk) {
         if (this.hasAPI()) {
             const prompt = PROMPT_TEMPLATES.longForm(input);
-            const content = await this.callClaude(prompt);
+            const content = await this.callClaudeStream(prompt, onChunk);
             return {
                 type: 'longForm',
                 title: this.extractTitle(content),
@@ -555,21 +597,127 @@ class PyramidContentAgent {
                 platform: '公众号/博客'
             };
         }
-        // 模拟数据
+        // 模拟数据（模拟流式输出）
+        return await this.mockStreamOutput(input, 'longForm', onChunk);
+    }
+
+    // 模拟流式输出
+    async mockStreamOutput(input, type, onChunk) {
+        const mockContent = MOCK_CONTENT[type](input);
+        const chunks = mockContent.split('\n');
+        let accumulated = '';
+
+        for (let i = 0; i < chunks.length; i++) {
+            accumulated += chunks[i] + '\n';
+            if (onChunk) {
+                onChunk({
+                    type: 'chunk',
+                    content: chunks[i] + '\n',
+                    progress: Math.round(((i + 1) / chunks.length) * 100),
+                    accumulated: accumulated
+                });
+            }
+            // 模拟网络延迟
+            await new Promise(resolve => setTimeout(resolve, 50 + Math.random() * 100));
+        }
+
         return {
-            type: 'longForm',
-            title: `深度长文：${input.topic || input.title || '一篇让你重新思考的文章'}`,
-            content: MOCK_CONTENT.longForm(input),
-            wordCount: MOCK_CONTENT.longForm(input).length,
-            platform: '公众号/博客'
+            type: type,
+            title: type === 'longForm' ? `深度长文：${input.topic || input.title || '一篇让你重新思考的文章'}` : '',
+            content: mockContent,
+            wordCount: mockContent.length,
+            platform: type === 'longForm' ? '公众号/博客' : ''
         };
     }
 
+    // 调用 Claude API（流式）
+    async callClaudeStream(prompt, onChunk) {
+        const apiKey = window.CLAUDE_API_KEY || window.APP_CONFIG?.claude?.apiKey;
+        const baseUrl = window.APP_CONFIG?.claude?.baseUrl || '';
+        const model = window.APP_CONFIG?.claude?.model || 'claude-sonnet-4-20250514';
+
+        console.log('🤖 调用 Claude API (流式)...');
+
+        let apiUrl;
+        let useProxy = false;
+        if (baseUrl) {
+            apiUrl = `${baseUrl}/v1/messages`;
+        } else {
+            apiUrl = 'https://api.anthropic.com/v1/messages';
+            useProxy = true;
+        }
+
+        const fetchUrl = useProxy ? 'https://corsproxy.io/?' + encodeURIComponent(apiUrl) : apiUrl;
+
+        try {
+            const response = await fetch(fetchUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'anthropic-version': '2023-06-01'
+                },
+                body: JSON.stringify({
+                    model: model,
+                    max_tokens: 4000,
+                    stream: true,
+                    messages: [{ role: 'user', content: prompt }]
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`API Error ${response.status}`);
+            }
+
+            // 处理流式响应
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let fullContent = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value);
+                const lines = chunk.split('\n').filter(line => line.trim());
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const data = line.slice(6);
+                        if (data === '[DONE]') continue;
+
+                        try {
+                            const parsed = JSON.parse(data);
+                            if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
+                                const text = parsed.delta.text;
+                                fullContent += text;
+                                if (onChunk) {
+                                    onChunk({
+                                        type: 'chunk',
+                                        content: text,
+                                        accumulated: fullContent
+                                    });
+                                }
+                            }
+                        } catch (e) {
+                            console.error('解析流式数据失败:', e);
+                        }
+                    }
+                }
+            }
+
+            return fullContent;
+        } catch (error) {
+            console.error('❌ 流式调用失败:', error);
+            throw error;
+        }
+    }
+
     // 生成短视频脚本
-    async generateShortVideo(input, longFormContent) {
+    async generateShortVideo(input, longFormContent, onChunk) {
         if (this.hasAPI()) {
             const prompt = PROMPT_TEMPLATES.shortVideo(input, longFormContent);
-            const content = await this.callClaude(prompt);
+            const content = await this.callClaudeStream(prompt, onChunk);
             return {
                 type: 'shortVideo',
                 count: 5,
@@ -577,7 +725,60 @@ class PyramidContentAgent {
                 duration: '30-60秒/条'
             };
         }
-        // 模拟数据
+        // 模拟数据（模拟流式输出）
+        return await this.mockStreamOutputVideo(input, longFormContent, onChunk);
+    }
+
+    // 生成短文案
+    async generateShortCopy(input, longFormContent, onChunk) {
+        if (this.hasAPI()) {
+            const prompt = PROMPT_TEMPLATES.shortCopy(input, longFormContent);
+            const content = await this.callClaudeStream(prompt, onChunk);
+            return {
+                type: 'shortCopy',
+                categories: this.parseShortCopy(content),
+                totalCount: 15
+            };
+        }
+        // 模拟数据（模拟流式输出）
+        return await this.mockStreamOutputCopy(input, longFormContent, onChunk);
+    }
+
+    // 生成 LinkedIn
+    async generateLinkedIn(input, longFormContent, onChunk) {
+        if (this.hasAPI()) {
+            const prompt = PROMPT_TEMPLATES.linkedin(input, longFormContent);
+            const content = await this.callClaudeStream(prompt, onChunk);
+            return {
+                type: 'linkedin',
+                article: this.extractLinkedInArticle(content),
+                posters: this.extractPosters(content),
+                platforms: ['LinkedIn', '脉脉']
+            };
+        }
+        // 模拟数据（模拟流式输出）
+        return await this.mockStreamOutputLinkedIn(input, longFormContent, onChunk);
+    }
+
+    // 模拟流式输出 - 短视频
+    async mockStreamOutputVideo(input, longFormContent, onChunk) {
+        const mockContent = MOCK_CONTENT.shortVideo(input, longFormContent);
+        const lines = mockContent.split('\n');
+        let accumulated = '';
+
+        for (let i = 0; i < lines.length; i++) {
+            accumulated += lines[i] + '\n';
+            if (onChunk) {
+                onChunk({
+                    type: 'chunk',
+                    content: lines[i] + '\n',
+                    progress: Math.round(((i + 1) / lines.length) * 100),
+                    accumulated: accumulated
+                });
+            }
+            await new Promise(resolve => setTimeout(resolve, 30 + Math.random() * 50));
+        }
+
         return {
             type: 'shortVideo',
             count: 5,
@@ -586,41 +787,55 @@ class PyramidContentAgent {
         };
     }
 
-    // 生成短文案
-    async generateShortCopy(input, longFormContent) {
-        if (this.hasAPI()) {
-            const prompt = PROMPT_TEMPLATES.shortCopy(input, longFormContent);
-            const content = await this.callClaude(prompt);
-            return {
-                type: 'shortCopy',
-                categories: this.parseShortCopy(content),
-                totalCount: 15
-            };
+    // 模拟流式输出 - 短文案
+    async mockStreamOutputCopy(input, longFormContent, onChunk) {
+        const mockData = this.getMockShortCopy();
+        const mockText = JSON.stringify(mockData, null, 2);
+        const lines = mockText.split('\n');
+        let accumulated = '';
+
+        for (let i = 0; i < lines.length; i++) {
+            accumulated += lines[i] + '\n';
+            if (onChunk) {
+                onChunk({
+                    type: 'chunk',
+                    content: lines[i] + '\n',
+                    progress: Math.round(((i + 1) / lines.length) * 100),
+                    accumulated: accumulated
+                });
+            }
+            await new Promise(resolve => setTimeout(resolve, 20 + Math.random() * 40));
         }
-        // 模拟数据
+
         return {
             type: 'shortCopy',
-            categories: this.getMockShortCopy(),
-            totalCount: 15
+            categories: mockData,
+            totalCount: 3 + 3 + 5 + 15 + 1
         };
     }
 
-    // 生成 LinkedIn
-    async generateLinkedIn(input, longFormContent) {
-        if (this.hasAPI()) {
-            const prompt = PROMPT_TEMPLATES.linkedin(input, longFormContent);
-            const content = await this.callClaude(prompt);
-            return {
-                type: 'linkedin',
-                article: this.extractLinkedInArticle(content),
-                posters: this.extractPosters(content),
-                platforms: ['LinkedIn', '脉脉']
-            };
+    // 模拟流式输出 - LinkedIn
+    async mockStreamOutputLinkedIn(input, longFormContent, onChunk) {
+        const mockContent = MOCK_CONTENT.linkedin(input);
+        const lines = mockContent.split('\n');
+        let accumulated = '';
+
+        for (let i = 0; i < lines.length; i++) {
+            accumulated += lines[i] + '\n';
+            if (onChunk) {
+                onChunk({
+                    type: 'chunk',
+                    content: lines[i] + '\n',
+                    progress: Math.round(((i + 1) / lines.length) * 100),
+                    accumulated: accumulated
+                });
+            }
+            await new Promise(resolve => setTimeout(resolve, 25 + Math.random() * 45));
         }
-        // 模拟数据
+
         return {
             type: 'linkedin',
-            article: MOCK_CONTENT.linkedin(input),
+            article: mockContent,
             posters: this.getMockPosters(),
             platforms: ['LinkedIn', '脉脉']
         };
@@ -693,35 +908,43 @@ class PyramidContentAgent {
         ];
     }
 
-    // 获取模拟短文案
+    // 获取模拟小红书物料
     getMockShortCopy() {
-        return [
-            { name: '金句型', icon: '💎', items: [
-                '人和人的差距，不是努力决定的，是认知。',
-                '选择对了，努力才有意义。',
-                '舒服的时候，通常是在退步。',
-                '你能赚到的钱，等于你解决问题的价值。'
-            ]},
-            { name: '痛点型', icon: '😣', items: [
-                '你是不是也这样？每天忙得要死，但年底一看好像什么都没完成。',
-                '为什么看了那么多干货，依然过不好这一生？',
-                '别人都已经起飞了，你还在原地踏步。'
-            ]},
-            { name: '反直觉型', icon: '🤔', items: [
-                '其实，你不需要更努力，只需要更聪明。',
-                '成功的人，往往不是最拼的那个。',
-                '最好的投资，是投资自己的大脑。'
-            ]},
-            { name: '干货型', icon: '📚', items: [
-                '分享3个提升认知的方法：①大量输入 ②跨界思考 ③输出倒逼输入',
-                '每周花2小时做这件事，超过90%的人',
-                '一个人进步的最好方式：找到一个学习标杆，然后模仿他'
-            ]},
-            { name: '故事型', icon: '📖', items: [
-                '我有个朋友，之前月薪5万，今年自己创业，现在...',
-                '三个月前，我还是个普通人，直到...'
-            ]}
-        ];
+        return {
+            coverPrompts: [
+                '一个年轻人坐在书桌前，眼神坚定看向远方，背景是城市夜景，霓虹灯效果，赛博朋克风格，明亮色彩',
+                '三个不同年龄的人在对话，矢量插画风格，扁平设计，温暖色调，表现认知差距主题',
+                '大脑和火箭飞船的对比，一半是平淡日常，一半是星辰大海，象征认知提升带来的改变'
+            ],
+            titles: [
+                '关于认知差，我后悔知道太晚',
+                '为什么你拼尽全力，还是赚不到钱？',
+                '原来这才是人与人之间最大的差距'
+            ],
+            bodyTexts: [
+                {
+                    title: '你所谓的努力，可能只是在原地踏步',
+                    content: '很多人每天忙得要死，但年底一看好像什么都没完成。你以为是时间不够？其实是你的认知出了问题。\n\n真正的成长，不是更努力，而是换一种思维模式。',
+                    cta: '想知道如何提升认知？点击头像听完整版！'
+                },
+                {
+                    title: '为什么看了那么多干货，依然过不好这一生？',
+                    content: '收藏=会了吗？不，你只是拥有了但没使用。\n\n知识不行动，等于没知识。',
+                    cta: '完整版在小宇宙，点击头像立即收听！'
+                },
+                {
+                    title: '认知差，才是最大的财富差',
+                    content: '同样的机会摆在不同人面前，有人看到的是困难，有人看到的是机遇。\n\n不是你不努力，而是你的认知维度还不够。',
+                    cta: '深度分析尽在小宇宙完整版，戳我！'
+                }
+            ],
+            tags: [
+                '#认知 #成长 #思维 #自我提升 #学习方法',
+                '#职场 #赚钱 #认知差 #干货分享 #个人成长',
+                '#创业 #认知觉醒 #女性成长 #小宇宙 #播客'
+            ],
+            listenGuide: '🎧 戳头像 → 订阅 → 收听完整版\n\n小宇宙/喜马拉雅/苹果播客搜索"深度对话"，一键订阅不迷路！'
+        };
     }
 
     // 获取模拟海报文案

@@ -4,6 +4,8 @@
 
 // 导入播客内容再利用 Agent (金字塔式)
 import { PyramidContentAgentInstance, CONTENT_TIERS } from './agents/content-repurpose.js';
+// 导入图片 Prompt 生成器
+import ImagePromptGenerator from './utils/image-prompt-generator.js';
 
 // ========== 应用状态管理 ==========
 const AppState = {
@@ -356,6 +358,29 @@ class App {
         console.log('🔄 模式切换:', mode);
     }
 
+    // ========== 切换物料 Tab ==========
+    switchTier(tierName) {
+        // 更新 tab 状态
+        document.querySelectorAll('.tier-tab').forEach(tab => {
+            tab.classList.remove('tier-tab--active');
+            if (tab.dataset.tier === tierName) {
+                tab.classList.add('tier-tab--active');
+            }
+        });
+
+        // 切换面板
+        document.querySelectorAll('.tier-panel').forEach(panel => {
+            panel.classList.remove('tier-panel--active');
+        });
+
+        const targetPanel = document.getElementById(`panel-${tierName}`);
+        if (targetPanel) {
+            targetPanel.classList.add('tier-panel--active');
+        }
+
+        console.log('🔄 切换到 Tab:', tierName);
+    }
+
     // ========== 新建项目 ==========
     newProject() {
         // 清空当前项目数据
@@ -391,7 +416,7 @@ class App {
         const tiers = ['longform', 'shortvideo', 'shortcopy', 'linkedin'];
         tiers.forEach((tier, index) => {
             const content = document.getElementById(`tier-${tier}-content`);
-            const btn = document.querySelector(`#tier-${tier} .btn`);
+            const btn = document.querySelector(`#panel-${tier} .btn`);
 
             if (content) {
                 const hints = {
@@ -753,71 +778,161 @@ class App {
             }
         }
 
-        this.showProgress('正在生成长文...');
+        // 初始化生成状态
+        this.startGenerating('longform');
 
-        // 调用 Agent
-        PyramidContentAgentInstance.generateLongForm(this.podcastInput)
+        // 调用 Agent（支持流式输出）
+        PyramidContentAgentInstance.generateLongForm(
+            this.podcastInput,
+            (chunk) => this.onStreamChunk('longform', chunk)
+        )
             .then(result => {
                 this.podcastResults.longForm = result;
-                this.displayTierContent('longform', result);
-                this.enableNextTier('longform');
+                this.finishGenerating('longform');
                 UIRenderer.showNotification('长文生成完成！', 'success');
             })
             .catch(error => {
                 console.error('❌ 长文生成失败:', error);
+                this.finishGenerating('longform', true);
                 UIRenderer.showNotification('生成失败: ' + error.message, 'error');
             });
     }
 
+    // 开始生成（设置UI状态）
+    startGenerating(tier) {
+        const contentEl = document.getElementById(`tier-${tier}-content`);
+        const btn = document.querySelector(`#panel-${tier} .btn`);
+
+        if (contentEl) {
+            contentEl.innerHTML = `
+                <div class="generating-status">
+                    <div class="generating-animation">
+                        <div class="dot-flashing"></div>
+                    </div>
+                    <div class="generating-text">正在生成中...</div>
+                    <div class="generating-progress">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="progress-${tier}"></div>
+                        </div>
+                        <div class="progress-text" id="progress-text-${tier}">0%</div>
+                    </div>
+                </div>
+                <div class="generating-content" id="stream-content-${tier}"></div>
+            `;
+        }
+
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = '生成中...';
+        }
+    }
+
+    // 处理流式输出片段
+    onStreamChunk(tier, chunk) {
+        const streamContentEl = document.getElementById(`stream-content-${tier}`);
+        const progressEl = document.getElementById(`progress-${tier}`);
+        const progressTextEl = document.getElementById(`progress-text-${tier}`);
+
+        if (streamContentEl && chunk.content) {
+            // 实时显示生成的内容
+            streamContentEl.textContent += chunk.content;
+            // 自动滚动到底部
+            streamContentEl.scrollTop = streamContentEl.scrollHeight;
+        }
+
+        if (progressEl && chunk.progress) {
+            progressEl.style.width = chunk.progress + '%';
+        }
+
+        if (progressTextEl && chunk.progress) {
+            progressTextEl.textContent = chunk.progress + '%';
+        }
+    }
+
+    // 完成生成
+    finishGenerating(tier, error = false) {
+        console.log('🏁 finishGenerating called:', tier, 'error:', error);
+
+        const contentEl = document.getElementById(`tier-${tier}-content`);
+        const btn = document.querySelector(`#panel-${tier} .btn`);
+
+        console.log('📍 Elements found:', { contentEl: !!contentEl, btn: !!btn });
+
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = '重新生成';
+            console.log('✅ Reset button for:', tier);
+        }
+
+        const resultKey = tier === 'longform' ? 'longForm' : tier;
+        console.log('📦 Result key:', resultKey, 'Has result:', !!this.podcastResults[resultKey]);
+
+        if (!error && this.podcastResults[resultKey]) {
+            console.log('🎨 Displaying content for:', tier);
+            this.displayTierContent(tier, this.podcastResults[resultKey]);
+            console.log('🔓 Enabling next tier after:', tier);
+            this.enableNextTier(tier);
+        } else {
+            console.log('⚠️ Skipping display/enable - error:', error, 'hasResult:', !!this.podcastResults[resultKey]);
+        }
+    }
+
     generateShortVideo() {
-        this.showProgress('正在生成短视频脚本...');
+        this.startGenerating('shortvideo');
 
         PyramidContentAgentInstance.generateShortVideo(
             this.podcastInput,
-            this.podcastResults.longForm?.content || ''
+            this.podcastResults.longForm?.content || '',
+            (chunk) => this.onStreamChunk('shortvideo', chunk)
         )
             .then(result => {
                 this.podcastResults.shortVideo = result;
-                this.displayTierContent('shortvideo', result);
-                this.enableNextTier('shortvideo');
+                this.finishGenerating('shortvideo');
                 UIRenderer.showNotification('短视频脚本生成完成！', 'success');
             })
             .catch(error => {
+                console.error('❌ 短视频脚本生成失败:', error);
+                this.finishGenerating('shortvideo', true);
                 UIRenderer.showNotification('生成失败: ' + error.message, 'error');
             });
     }
 
     generateShortCopy() {
-        this.showProgress('正在生成短文案...');
+        this.startGenerating('shortcopy');
 
         PyramidContentAgentInstance.generateShortCopy(
             this.podcastInput,
-            this.podcastResults.longForm?.content || ''
+            this.podcastResults.longForm?.content || '',
+            (chunk) => this.onStreamChunk('shortcopy', chunk)
         )
             .then(result => {
                 this.podcastResults.shortCopy = result;
-                this.displayTierContent('shortcopy', result);
-                this.enableNextTier('shortcopy');
+                this.finishGenerating('shortcopy');
                 UIRenderer.showNotification('短文案生成完成！', 'success');
             })
             .catch(error => {
+                console.error('❌ 短文案生成失败:', error);
+                this.finishGenerating('shortcopy', true);
                 UIRenderer.showNotification('生成失败: ' + error.message, 'error');
             });
     }
 
     generateLinkedIn() {
-        this.showProgress('正在生成 LinkedIn 内容...');
+        this.startGenerating('linkedin');
 
         PyramidContentAgentInstance.generateLinkedIn(
             this.podcastInput,
-            this.podcastResults.longForm?.content || ''
+            this.podcastResults.longForm?.content || '',
+            (chunk) => this.onStreamChunk('linkedin', chunk)
         )
             .then(result => {
                 this.podcastResults.linkedin = result;
-                this.displayTierContent('linkedin', result);
+                this.finishGenerating('linkedin');
                 UIRenderer.showNotification('LinkedIn 内容生成完成！', 'success');
             })
             .catch(error => {
+                console.error('❌ LinkedIn 内容生成失败:', error);
+                this.finishGenerating('linkedin', true);
                 UIRenderer.showNotification('生成失败: ' + error.message, 'error');
             });
     }
@@ -859,28 +974,304 @@ class App {
         if (!contentEl) return;
 
         if (tier === 'longform') {
-            contentEl.innerHTML = `<div class="generated-content">${result.content || '生成完成'}</div>`;
+            // 使用 pre-wrap 保持换行和格式
+            contentEl.innerHTML = `
+                <div class="generated-content long-form-content">
+                    <div class="content-title">${result.title || '深度长文'}</div>
+                    <div class="content-meta">
+                        字数：${result.wordCount || 0} 字 | 平台：${result.platform || '公众号/博客'}
+                    </div>
+                    <div class="content-body">${this.escapeHtml(result.content || '生成完成')}</div>
+                </div>
+            `;
         } else if (tier === 'shortvideo') {
-            contentEl.innerHTML = `<div class="generated-content">生成 ${result.count} 条短视频脚本</div>`;
+            contentEl.innerHTML = `
+                <div class="generated-content short-video-content">
+                    <div class="content-meta">
+                        已生成 ${result.count} 条短视频脚本 | 时长：${result.duration}
+                    </div>
+                    <div class="content-body">${this.formatVideoScripts(result.scripts)}</div>
+                </div>
+            `;
         } else if (tier === 'shortcopy') {
-            contentEl.innerHTML = `<div class="generated-content">生成多条短文案</div>`;
+            contentEl.innerHTML = `
+                <div class="generated-content short-copy-content">
+                    <div class="content-meta">
+                        小红书物料已生成 | 包含封面图、文案、标签、引导收听
+                    </div>
+                    <div class="content-body">${this.formatShortCopy(result.categories || result)}</div>
+                </div>
+            `;
         } else if (tier === 'linkedin') {
-            contentEl.innerHTML = `<div class="generated-content">LinkedIn 内容生成完成</div>`;
+            contentEl.innerHTML = `
+                <div class="generated-content linkedin-content">
+                    <div class="content-meta">
+                        LinkedIn 专业内容已生成 | 平台：${result.platforms?.join(' + ') || 'LinkedIn'}
+                    </div>
+                    <div class="content-body">${this.escapeHtml(result.article || '生成完成')}</div>
+                </div>
+            `;
         }
+    }
+
+    // 格式化视频脚本
+    formatVideoScripts(scripts) {
+        if (!scripts || !Array.isArray(scripts)) return '';
+
+        return scripts.map(script => `
+            <div class="video-script-item">
+                <div class="script-header">
+                    <span class="script-number">脚本 ${script.id}</span>
+                    <span class="script-duration">${script.duration}</span>
+                </div>
+                ${script.title ? `<div class="script-title">${this.escapeHtml(script.title)}</div>` : ''}
+                ${script.hook ? `<div class="script-section"><strong>Hook:</strong> ${this.escapeHtml(script.hook)}</div>` : ''}
+                ${script.content ? `<div class="script-section"><strong>内容:</strong> ${this.escapeHtml(script.content)}</div>` : ''}
+                ${script.cta ? `<div class="script-section"><strong>CTA:</strong> ${this.escapeHtml(script.cta)}</div>` : ''}
+            </div>
+        `).join('');
+    }
+
+    // 格式化图文种草物料
+    formatShortCopy(data) {
+        if (!data) return '';
+
+        // 新格式：图文种草（包含图片 Prompt）
+        if (data.goldenQuoteCards || data.contentLists) {
+            let html = '';
+
+            // 金句卡片（带 AI 图片生成 Prompt）
+            if (data.goldenQuoteCards && data.goldenQuoteCards.length > 0) {
+                html += `<div class="xiaohongshu-section">`;
+                html += `<div class="section-title">💎 金句卡片（AI 图片生成 Prompt + 文案）</div>`;
+                html += `<div class="section-items">`;
+
+                data.goldenQuoteCards.forEach((card, index) => {
+                    // 为每张卡片生成多个风格的 Prompt
+                    const stylePrompts = ImagePromptGenerator.generateMultipleStyles(card.quote || card);
+
+                    html += `
+                        <div class="golden-quote-card">
+                            <div class="card-header">
+                                <span class="card-number">卡片 ${index + 1}</span>
+                                <span class="card-badge">${card.template || '极简风'}</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="chinese-text">${this.escapeHtml(card.quote || card)}</div>
+
+                                <div class="ai-prompts">
+                                    <div class="prompts-title">🎨 AI 图片生成 Prompt（三款风格）</div>
+
+                                    ${stylePrompts.map((spec, styleIndex) => {
+                                        const styleNames = ['极简留白', '杂志时尚', '渐变高级'];
+                                        return `
+                                            <div class="prompt-spec">
+                                                <div class="prompt-header">
+                                                    <span class="prompt-style">${styleNames[styleIndex]}</span>
+                                                    <button class="copy-prompt-btn" onclick="app.copyPrompt(${index}, ${styleIndex})">
+                                                        📋 复制
+                                                    </button>
+                                                </div>
+                                                <div class="prompt-text" id="prompt-${index}-${styleIndex}">${this.escapeHtml(spec.prompt)}</div>
+                                                <div class="prompt-suggestions">
+                                                    <strong>设计建议：</strong>
+                                                    布局：${spec.suggestions.layout}<br>
+                                                    色彩：${spec.suggestions.color}<br>
+                                                    情调：${spec.suggestions.mood}
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `</div></div>`;
+            }
+
+            // 干货清单
+            if (data.contentLists && data.contentLists.length > 0) {
+                data.contentLists.forEach(list => {
+                    html += `
+                        <div class="xiaohongshu-section">
+                            <div class="section-title">📋 ${this.escapeHtml(list.title)}</div>
+                            <div class="section-items">
+                                <div class="content-list">
+                                    ${list.points.map((point, index) => `
+                                        <div class="list-item">
+                                            <span class="list-number">${index + 1}</span>
+                                            <span class="list-text">${this.escapeHtml(point)}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                ${list.cta ? `<div class="list-cta">${this.escapeHtml(list.cta)}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // 深度感悟
+            if (data.deepInsight) {
+                const insight = data.deepInsight;
+                html += `
+                    <div class="xiaohongshu-section">
+                        <div class="section-title">✨ 深度感悟</div>
+                        <div class="deep-insight">
+                            ${insight.opening ? `<div class="insight-opening">${this.escapeHtml(insight.opening)}</div>` : ''}
+                            ${insight.content ? `<div class="insight-content">${this.escapeHtml(insight.content)}</div>` : ''}
+                            ${insight.ending ? `<div class="insight-ending">${this.escapeHtml(insight.ending)}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 标题库
+            if (data.titleBank && data.titleBank.length > 0) {
+                html += `
+                    <div class="xiaohongshu-section">
+                        <div class="section-title">📌 标题库</div>
+                        <div class="title-bank">
+                            ${data.titleBank.map(title => `
+                                <div class="title-item">${this.escapeHtml(title)}</div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 话题标签
+            if (data.tags && data.tags.length > 0) {
+                html += `
+                    <div class="xiaohongshu-section">
+                        <div class="section-title">#️⃣ 话题标签</div>
+                        <div class="tags-container">
+                            ${data.tags.join(' · ')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 转化逻辑说明
+            if (data.conversionLogic) {
+                html += `
+                    <div class="xiaohongshu-section">
+                        <div class="section-title">📊 引流转化逻辑</div>
+                        <div class="conversion-logic">${this.escapeHtml(data.conversionLogic)}</div>
+                    </div>
+                `;
+            }
+
+            return html;
+        }
+
+        // 旧格式：数组（兼容）
+        if (!Array.isArray(data)) return '';
+
+        return data.map(category => `
+            <div class="copy-category">
+                <div class="category-header">${category.icon || '📝'} ${category.name}</div>
+                <div class="category-items">
+                    ${category.items.map((item, index) => `
+                        <div class="copy-item">
+                            <span class="copy-number">${index + 1}</span>
+                            <span class="copy-text">${this.escapeHtml(item)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // 复制 Prompt 到剪贴板
+    copyPrompt(cardIndex, styleIndex) {
+        const promptElement = document.getElementById(`prompt-${cardIndex}-${styleIndex}`);
+        if (promptElement) {
+            const promptText = promptElement.textContent;
+
+            // 使用 Clipboard API
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(promptText).then(() => {
+                    UIRenderer.showNotification('✅ Prompt 已复制到剪贴板', 'success');
+                }).catch(() => {
+                    this.fallbackCopy(promptText);
+                });
+            } else {
+                this.fallbackCopy(promptText);
+            }
+        }
+    }
+
+    // 备用复制方法
+    fallbackCopy(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+
+        try {
+            document.execCommand('copy');
+            UIRenderer.showNotification('✅ Prompt 已复制到剪贴板', 'success');
+        } catch (err) {
+            UIRenderer.showNotification('❌ 复制失败，请手动复制', 'error');
+        }
+
+        document.body.removeChild(textarea);
+    }
+
+    // 转义 HTML 特殊字符
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     enableNextTier(currentTier) {
         const tierOrder = ['longform', 'shortvideo', 'shortcopy', 'linkedin'];
         const currentIndex = tierOrder.indexOf(currentTier);
 
+        console.log('🔓 enableNextTier called:', currentTier, 'index:', currentIndex);
+
+        // 标记当前 tab 为已生成
+        const currentTab = document.querySelector(`.tier-tab[data-tier="${currentTier}"]`);
+        if (currentTab) {
+            currentTab.classList.add('tier-tab--generated');
+            console.log('✅ Marked tab as generated:', currentTier);
+        }
+
+        // 长文生成后，可以同时启用短视频脚本和社交文案
+        if (currentTier === 'longform') {
+            const tiersToEnable = ['shortvideo', 'shortcopy'];
+            tiersToEnable.forEach(tier => {
+                const btn = document.querySelector(`#panel-${tier} .btn`);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.classList.remove('btn--secondary');
+                    btn.classList.add('btn--accent');
+                    console.log('✅ Enabled button for:', tier);
+                }
+            });
+            return;
+        }
+
+        // 其他情况按顺序启用
         if (currentIndex < tierOrder.length - 1) {
             const nextTier = tierOrder[currentIndex + 1];
-            const nextBtn = document.querySelector(`#tier-${nextTier} .btn`);
+            const nextBtn = document.querySelector(`#panel-${nextTier} .btn`);
+
+            console.log('🎯 Next tier:', nextTier, 'Button found:', !!nextBtn);
 
             if (nextBtn) {
                 nextBtn.disabled = false;
                 nextBtn.classList.remove('btn--secondary');
                 nextBtn.classList.add('btn--accent');
+                console.log('✅ Enabled button for:', nextTier);
+            } else {
+                console.error('❌ Button not found for:', nextTier);
             }
         }
     }
